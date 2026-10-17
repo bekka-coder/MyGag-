@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyEngly</title>
+<style>
+:root{
+  --bg:#0f1220; --card:#181c2e; --card2:#20263d; --text:#f2f4ff;
+  --muted:#9aa3c0; --accent:#6c5ce7; --accent2:#00d2a8; --danger:#ff5c7a;
+  --gold:#ffc94d; --radius:18px;
+}
+body.light{
+  --bg:#f4f6fb; --card:#ffffff; --card2:#eef1f8; --text:#161a2b;
+  --muted:#66708a; --accent:#6c5ce7; --accent2:#00b894;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);transition:.25s}
+.app{max-width:430px;margin:0 auto;min-height:100vh;padding:16px 16px 92px;position:relative}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
+.brand{font-weight:800;font-size:22px;letter-spacing:-.5px}
+.brand span{color:var(--accent2)}
+.pill{background:var(--card);border:1px solid rgba(255,255,255,.07);padding:8px 12px;border-radius:999px;font-size:13px;display:flex;gap:6px;align-items:center}
+.coin{color:var(--gold);font-weight:700}
+.card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:18px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+h1,h2,h3{margin:0 0 10px}
+h2{font-size:20px}
+h3{font-size:16px}
+p{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 12px}
+.btn{width:100%;border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#8e7bff);cursor:pointer;transition:.18s;margin-top:8px}
+.btn:active{transform:scale(.98)}
+.btn.ghost{background:var(--card2);color:var(--text)}
+.btn.green{background:linear-gradient(135deg,#00b894,#00d2a8)}
+.btn.red{background:linear-gradient(135deg,#ff5c7a,#ff7b93)}
+.btn.small{padding:10px;font-size:14px;margin-top:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:16px;text-align:left;cursor:pointer;transition:.18s;color:var(--text)}
+.tile:active{transform:scale(.97)}
+.tile.locked{opacity:.45}
+.tile .emoji{font-size:26px}
+.tile b{display:block;margin-top:8px}
+.tile small{color:var(--muted)}
+.progress{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;margin:10px 0}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:.4s}
+.word{font-size:34px;font-weight:800;text-align:center;margin:26px 0 6px}
+.hint{text-align:center;color:var(--muted);font-size:13px}
+.timerbar{height:6px;background:var(--card2);border-radius:99px;overflow:hidden;margin:16px 0}
+.timerbar i{display:block;height:100%;background:var(--accent2);width:100%}
+.answers{display:grid;gap:10px;margin-top:18px}
+.answer{background:var(--card2);border:1px solid rgba(255,255,255,.06);color:var(--text);border-radius:14px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;transition:.15s;text-align:center}
+.answer:active{transform:scale(.98)}
+.answer.ok{background:rgba(0,210,168,.18);border-color:var(--accent2)}
+.answer.bad{background:rgba(255,92,122,.16);border-color:var(--danger)}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between}
+.badge{font-size:12px;color:var(--muted);background:var(--card2);padding:6px 10px;border-radius:999px}
+.list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto}
+.wordrow{display:flex;justify-content:space-between;gap:10px;background:var(--card2);border-radius:12px;padding:12px}
+.wordrow small{display:block;color:var(--muted)}
+.tag{font-size:11px;padding:4px 8px;border-radius:99px;background:rgba(108,92,231,.18);color:#b3a7ff;white-space:nowrap}
+.tag.known{background:rgba(0,210,168,.15);color:var(--accent2)}
+.tag.review{background:rgba(255,201,77,.15);color:var(--gold)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 92%,transparent);backdrop-filter:blur(14px);border-top:1px solid rgba(255,255,255,.07)}
+.nav-inner{max-width:430px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 8px calc(8px + env(safe-area-inset-bottom))}
+.nav button{background:none;border:0;color:var(--muted);font-size:11px;padding:8px 4px;cursor:pointer;border-radius:12px}
+.nav button.active{color:var(--text);background:var(--card2)}
+.nav span{display:block;font-size:20px;margin-bottom:3px}
+.screen{display:none;animation:fade .25s ease}
+.screen.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.footer{text-align:center;color:var(--muted);font-size:11px;margin-top:18px;line-height:1.6}
+.settings{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid rgba(255,255,255,.08);background:var(--card2);color:var(--text);border-radius:999px;padding:8px 12px;font-size:13px;cursor:pointer}
+.chip.active{border-color:var(--accent);color:#fff;background:var(--accent)}
+body.light .chip.active{color:#fff}
+.big{font-size:42px;font-weight:900;text-align:center;margin:10px 0}
+.center{text-align:center}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">My<span>Engly</span></div>
+    <div class="pill">🪙 <span class="coin" id="coins">0</span></div>
+  </div>
+
+  <!-- HOME -->
+  <section id="home" class="screen active">
+    <div class="card">
+      <div class="row"><h2>Привет, игрок 👋</h2><span class="badge" id="streak">🔥 0 дней</span></div>
+      <p>Твой путь: <b id="learnedCount">0</b> из <b id="totalWords">0</b> слов</p>
+      <div class="progress"><i id="globalProgress"></i></div>
+      <button class="btn" onclick="startGame('guess')">⚡ Играть: Угадай слово</button>
+      <button class="btn ghost" onclick="openReview()">🔁 Повторить слова</button>
+    </div>
+
+    <div class="card">
+      <h3>Ежедневная награда</h3>
+      <p>Заходи каждый день и получай койны. Серия увеличивает награду.</p>
+      <button class="btn green" id="dailyBtn" onclick="claimDaily()">Забрать +25 🪙</button>
+    </div>
+
+    <h3>Игры</h3>
+    <div class="grid">
+      <button class="tile" onclick="startGame('guess')"><span class="emoji">⚡</span><b>Угадай слово</b><small>Перевод на время</small></button>
+      <button class="tile locked" id="oddTile" onclick="startGame('odd')"><span class="emoji">🧩</span><b>Лишнее слово</b><small>Уровень 2</small></button>
+      <button class="tile locked" id="lookTile" onclick="startGame('look')"><span class="emoji">👀</span><b>Смотри!</b><small>Уровень 5</small></button>
+      <button class="tile locked" id="readTile" onclick="startGame('read')"><span class="emoji">📖</span><b>Чтение</b><small>Уровень 8</small></button>
+    </div>
+
+    <div class="card">
+      <h3>Уровни слов</h3>
+      <div id="levels"></div>
+    </div>
+
+    <div class="card">
+      <h3>💡 Факт дня</h3>
+      <p id="fact"></p>
+    </div>
+  </section>
+
+  <!-- LIBRARY -->
+  <section id="library" class="screen">
+    <div class="card">
+      <h2>📚 Библиотека слов</h2>
+      <p>Здесь сохраняются все слова, которые ты встретил. Нажми на слово, чтобы изменить статус.</p>
+      <div class="row"><span class="badge">Выучено: <b id="knownCount">0</b></span><span class="badge">К повторению: <b id="dueCount">0</b></span></div>
+    </div>
+    <div class="card"><div class="list" id="libraryList"></div></div>
+  </section>
+
+  <!-- REVIEW -->
+  <section id="review" class="screen">
+    <div class="card">
+      <h2>🔁 Повторение</h2>
+      <p id="reviewInfo">Слова возвращаются в повторение по системе интервалов.</p>
+      <div id="reviewBox"></div>
+    </div>
+  </section>
+
+  <!-- GAME -->
+  <section id="game" class="screen">
+    <div class="card">
+      <div class="row"><h3 id="gameTitle">Угадай слово</h3><span class="badge" id="score">0</span></div>
+      <div class="timerbar"><i id="timerFill"></i></div>
+      <div id="gameBox"></div>
+    </div>
+    <button class="btn ghost" onclick="show('home')">Выйти</button>
+  </section>
+
+  <!-- SHOP -->
+  <section id="shop" class="screen">
+    <div class="card">
+      <h2>🛍 Магазин</h2>
+      <p>Покупай баффы за койны. Баффы помогают в игре, но не заменяют знание слов.</p>
+    </div>
+    <div class="card" id="shopList"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings" class="screen">
+    <div class="card">
+      <h2>⚙️ Настройки</h2>
+      <p>Тема интерфейса</p>
+      <div class="settings">
+        <button class="chip active" onclick="setTheme('dark')">🌙 Тёмная</button>
+        <button class="chip" onclick="setTheme('light')">☀️ Светлая</button>
+      </div>
+      <p style="margin-top:16px">Размер шрифта</p>
+      <div class="settings">
+        <button class="chip" onclick="setFont(14)">A-</button>
+        <button class="chip active" onclick="setFont(16)">A</button>
+        <button class="chip" onclick="setFont(18)">A+</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Сброс прогресса</h3>
+      <button class="btn red" onclick="resetProgress()">Сбросить всё</button>
+    </div>
+  </section>
+
+  <div class="footer">
+    By developer <b>BekaBratan</b><br>
+    MyEngly · учи английский играя
+  </div>
+</div>
+
+<nav class="nav"><div class="nav-inner">
+  <button class="active" onclick="show('home',this)"><span>🏠</span>Главная</button>
+  <button onclick="show('library',this)"><span>📚</span>Слова</button>
+  <button onclick="show('shop',this)"><span>🛍</span>Магазин</button>
+  <button onclick="show('settings',this)"><span>⚙️</span>Ещё</button>
+</div></nav>
+
+<script>
+const WORDS=[
+ {en:"cat",ru:"кошка",lvl:1,theme:"Животные"},{en:"dog",ru:"собака",lvl:1,theme:"Животные"},
+ {en:"sun",ru:"солнце",lvl:1,theme:"Природа"},{en:"water",ru:"вода",lvl:1,theme:"Природа"},
+ {en:"book",ru:"книга",lvl:1,theme:"Учёба"},{en:"house",ru:"дом",lvl:1,theme:"Дом"},
+ {en:"apple",ru:"яблоко",lvl:1,theme:"Еда"},{en:"friend",ru:"друг",lvl:1,theme:"Люди"},
+ {en:"city",ru:"город",lvl:2,theme:"Город"},{en:"money",ru:"деньги",lvl:2,theme:"Быт"},
+ {en:"family",ru:"семья",lvl:2,theme:"Люди"},{en:"school",ru:"школа",lvl:2,theme:"Учёба"},
+ {en:"travel",ru:"путешествовать",lvl:2,theme:"Путешествия"},{en:"weather",ru:"погода",lvl:2,theme:"Природа"},
+ {en:"market",ru:"рынок",lvl:2,theme:"Город"},{en:"kitchen",ru:"кухня",lvl:2,theme:"Дом"},
+ {en:"achieve",ru:"достигать",lvl:3,theme:"Учёба"},{en:"environment",ru:"окружающая среда",lvl:3,theme:"Природа"},
+ {en:"opportunity",ru:"возможность",lvl:3,theme:"Бизнес"},{en:"responsible",ru:"ответственный",lvl:3,theme:"Люди"},
+ {en:"development",ru:"развитие",lvl:3,theme:"Бизнес"},{en:"knowledge",ru:"знание",lvl:3,theme:"Учёба"},
+ {en:"negotiate",ru:"вести переговоры",lvl:3,theme:"Бизнес"},{en:"sustainable",ru:"устойчивый",lvl:3,theme:"Природа"}
+];
+
+const FACTS=[
+ "The word “goodbye” comes from “God be with ye.”",
+ "English has more than 170,000 words in current use.",
+ "“Set” has one of the largest numbers of meanings in English.",
+ "The most common letter in English is “E.”",
+ "“I am” is the shortest complete sentence in English."
+];
+
+const SHOP=[
+ {id:"freeze",name:"❄️ Заморозка времени",desc:"+7 секунд в игре",price:80},
+ {id:"fifty",name:"🎯 50/50",desc:"Убирает два неверных ответа",price:60},
+ {id:"double",name:"✖️ Двойные койны",desc:"Удваивает награду одной игры",price:120},
+ {id:"shield",name:"🛡 Щит от ошибки",desc:"Первая ошибка не завершает игру",price:100}
+];
+
+const LEVEL_COST=[0,100,250,625,1560,3900,9750,24375,60938,152344];
+const DAY=86400000, INTERVALS=[1,3,7,14,30];
+
+let S=JSON.parse(localStorage.getItem("myengly")||"null")||{
+ coins:0, streak:0, lastDaily:"", unlockedLevel:1, currentLevel:1,
+ library:{}, inventory:{freeze:0,fifty:0,double:0,shield:0}, theme:"dark", font:16
+};
+let G={active:false,score:0,time:30,word:null,options:[],mode:"guess",shieldUsed:false};
+
+function save(){localStorage.setItem("myengly",JSON.stringify(S))}
+function today(){return new Date().toDateString()}
+function $(id){return document.getElementById(id)}
+
+function show(id,btn){
+ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+ $(id).classList.add("active");
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.remove("active"));
+ if(btn)btn.classList.add("active");
+ if(id==="home")renderHome();
+ if(id==="library")renderLibrary();
+ if(id==="shop")renderShop();
+}
+
+function init(){
+ document.body.classList.toggle("light",S.theme==="light");
+ document.body.style.fontSize=S.font+"px";
+ $("coins").textContent=S.coins;
+ $("fact").textContent=FACTS[Math.floor(Math.random()*FACTS.length)];
+ renderHome(); renderLibrary(); renderShop();
+ if(S.lastDaily!==today()) $("dailyBtn").disabled=false; else $("dailyBtn").disabled=true;
+}
+
+function renderHome(){
+ const learned=Object.values(S.library).filter(w=>w.status==="known").length;
+ $("learnedCount").textContent=learned;
+ $("totalWords").textContent=WORDS.length;
+ $("globalProgress").style.width=(learned/WORDS.length*100)+"%";
+ $("streak").textContent="🔥 "+S.streak+" дней";
+ $("coins").textContent=S.coins;
+ const lv=$("levels"); lv.innerHTML="";
+ for(let i=1;i<=3;i++){
+   const words=WORDS.filter(w=>w.lvl===i);
+   const unlocked=i<=S.unlockedLevel;
+   const cost=LEVEL_COST[i]||0;
+   const div=document.createElement("div");
+   div.className="wordrow"; div.style.marginBottom="8px";
+   div.innerHTML=`<div><b>Уровень ${i}</b><small>${words.length} слов · ${words[0].theme}...</small></div>
+   <div>${unlocked?`<span class="tag ${i===S.currentLevel?"known":""}">${i===S.currentLevel?"Активен":"Открыт"}</span>`:`<button class="btn small" onclick="unlockLevel(${i})"> ${cost} 🪙</button>`}</div>`;
+   lv.appendChild(div);
+ }
+ const canOdd=S.unlockedLevel>=2, canLook=S.unlockedLevel>=5, canRead=S.unlockedLevel>=8;
+ $("oddTile").classList.toggle("locked",!canOdd);
+ $("lookTile").classList.toggle("locked",!canLook);
+ $("readTile").classList.toggle("locked",!canRead);
+}
+
+function unlockLevel(i){
+ const cost=LEVEL_COST[i];
+ if(S.coins<cost){alert("Не хватает койнов");return}
+ S.coins-=cost; S.unlockedLevel=Math.max(S.unlockedLevel,i); S.currentLevel=i;
+ save(); renderHome(); alert("Уровень "+i+" открыт!");
+}
+
+function claimDaily(){
+ if(S.lastDaily===today())return;
+ const yesterday=new Date(Date.now()-DAY).toDateString();
+ S.streak=(S.lastDaily===yesterday)?S.streak+1:1;
+ const reward=25+Math.min(S.streak-1,5)*5;
+ S.coins+=reward; S.lastDaily=today(); save(); init();
+ alert("Ежедневная награда: +"+reward+" койнов!");
+}
+
+function addToLibrary(word,status="learning"){
+ if(!S.library[word.en]) S.library[word.en]={...word,status,review:Date.now()+DAY,correct:0,wrong:0};
+ save();
+}
+
+function renderLibrary(){
+ const list=$("libraryList"); list.innerHTML="";
+ const words=Object.values(S.library);
+ $("knownCount").textContent=words.filter(w=>w.status==="known").length;
+ $("dueCount").textContent=words.filter(w=>w.review<=Date.now()).length;
+ if(!words.length){list.innerHTML="<p>Пока пусто. Сыграй в игру, чтобы добавить слова.</p>";return}
+ words.sort((a,b)=>a.en.localeCompare(b.en)).forEach(w=>{
+   const due=w.review<=Date.now();
+   const row=document.createElement("div"); row.className="wordrow";
+   row.innerHTML=`<div><b>${w.en}</b><small>${w.ru} · ${w.theme}</small></div>
+   <span class="tag ${w.status==="known"?"known":due?"review":""}">${w.status==="known"?"знаю":due?"повторить":"учу"}</span>`;
+   row.onclick=()=>{
+     w.status=w.status==="known"?"learning":"known";
+     w.review=Date.now()+(w.status==="known"?INTERVALS[0]*DAY:DAY);
+     save(); renderLibrary();
+   };
+   list.appendChild(row);
+ });
+}
+
+function openReview(){
+ show("review");
+ const due=Object.values(S.library).filter(w=>w.review<=Date.now());
+ const box=$("reviewBox");
+ if(!due.length){
+   $("reviewInfo").textContent="Сейчас нет слов для повторения. Возвращайся завтра!";
+   box.innerHTML='<div class="center"><div class="big">✅</div><p>Все повторения выполнены.</p></div>';
+   return;
+ }
+ $("reviewInfo").textContent="Осталось повторить: "+due.length;
+ renderReviewCard(due);
+}
+
+function renderReviewCard(due){
+ const w=due[0];
+ $("reviewBox").innerHTML=`
+  <div class="word">${w.en}</div>
+  <div class="hint">Выбери правильный перевод</div>
+  <div class="answers" id="reviewAnswers"></div>`;
+ const wrong=WORDS.filter(x=>x.en!==w.en).sort(()=>Math.random()-.5).slice(0,3);
+ const opts=[...wrong.map(x=>x.ru),w.ru].sort(()=>Math.random()-.5);
+ const box=$("reviewAnswers");
+ opts.forEach(ru=>{
+   const b=document.createElement("button"); b.className="answer"; b.textContent=ru;
+   b.onclick=()=>{
+     const correct=ru===w.ru;
+     b.classList.add(correct?"ok":"bad");
+     if(correct){
+       w.correct++; const stage=Math.min(w.correct,INTERVALS.length-1);
+       w.review=Date.now()+INTERVALS[stage]*DAY;
+       if(w.correct>=3)w.status="known";
+       S.coins+=2;
+     }else{
+       w.wrong++; w.status="learning"; w.review=Date.now()+DAY;
+     }
+     save(); due.shift();
+     setTimeout(()=>due.length?renderReviewCard(due):openReview(),550);
+   };
+   box.appendChild(b);
+ });
+}
+
+function startGame(mode){
+ if(mode!=="guess"){
+   const need={odd:2,look:5,read:8}[mode];
+   if(S.unlockedLevel<need){alert("Эта игра откроется на уровне "+need);return}
+ }
+ G={active:true,score:0,time:30,mode,shieldUsed:false};
+ $("gameTitle").textContent={guess:"⚡ Угадай слово",odd:"🧩 Лишнее слово",look:"👀 Смотри!",read:"📖 Чтение"}[mode];
+ show("game"); nextQuestion();
+ clearInterval(G.timer);
+ G.timer=setInterval(()=>{
+   G.time--; $("timerFill").style.width=(G.time/30*100)+"%"; $("score").textContent=G.score;
+   if(G.time<=0) endGame();
+ },1000);
+}
+
+function nextQuestion(){
+ const pool=WORDS.filter(w=>w.lvl<=S.currentLevel+1);
+ G.word=pool[Math.floor(Math.random()*pool.length)];
+ addToLibrary(G.word);
+ const box=$("gameBox");
+ if(G.mode==="guess"||G.mode==="look"){
+   const wrong=WORDS.filter(x=>x.en!==G.word.en).sort(()=>Math.random()-.5).slice(0,3);
+   G.options=[...wrong.map(x=>x.ru),G.word.ru].sort(()=>Math.random()-.5);
+   box.innerHTML=`<div class="word">${G.word.en}</div><div class="hint">Выбери перевод</div><div class="answers" id="answers"></div>`;
+   const ab=$("answers");
+   G.options.forEach(ru=>{
+     const b=document.createElement("button"); b.className="answer"; b.textContent=ru;
+     b.onclick=()=>answer(b,ru===G.word.ru);
+     ab.appendChild(b);
+   });
+ } else if(G.mode==="odd"){
+   const theme=G.word.theme;
+   const same=WORDS.filter(x=>x.theme===theme&&x.en!==G.word.en).slice(0,3);
+   const other=WORDS.filter(x=>x.theme!==theme)[0];
+   const items=[...same,G.word,other].sort(()=>Math.random()-.5);
+   box.innerHTML=`<div class="hint">Найди слово не из темы «${theme}»</div><div class="answers" id="answers"></div>`;
+   const ab=$("answers");
+   items.forEach(w=>{
+     const b=document.createElement("button"); b.className="answer"; b.textContent=w.en;
+     b.onclick=()=>answer(b,w.en===other.en);
+     ab.appendChild(b);
+   });
+ } else {
+   box.innerHTML=`<div class="word">📖</div><p class="center">Tom goes to school every day. He likes English and reads books after class.</p>
+   <div class="answers"><button class="answer" onclick="answer(this,true)">Tom изучает английский</button>
+   <button class="answer" onclick="answer(this,false)">Том не любит книги</button></div>`;
+ }
+}
+
+function answer(btn,correct){
+ if(!G.active)return;
+ btn.classList.add(correct?"ok":"bad");
+ const w=G.word;
+ if(correct){
+   G.score+=10; S.coins+=G.mode==="guess"?2:3;
+   if(S.library[w.en]){S.library[w.en].correct++; if(S.library[w.en].correct>=3)S.library[w.en].status="known"}
+ }else{
+   if(G.mode==="guess"&&!G.shieldUsed&&S.inventory.shield>0){
+     S.inventory.shield--; G.shieldUsed=true; alert("🛡 Щит спас тебя!");
+   }else{
+     if(S.library[w.en]){S.library[w.en].wrong++;S.library[w.en].status="learning";S.library[w.en].review=Date.now()+DAY}
+     G.active=false; clearInterval(G.timer); endGame(); return;
+   }
+ }
+ save(); setTimeout(()=>{if(G.active)nextQuestion()},350);
+}
+
+function endGame(){
+ G.active=false; clearInterval(G.timer);
+ let reward=G.score;
+ if(S.inventory.double>0){S.inventory.double--; reward*=2}
+ S.coins+=reward; save(); $("coins").textContent=S.coins;
+ $("gameBox").innerHTML=`<div class="center"><div class="big">🏁</div><h3>Игра окончена</h3><p>Очки: <b>${G.score}</b><br>Награда: <b>+${reward} 🪙</b></p></div>
+ <button class="btn" onclick="startGame('${G.mode}')">Играть снова</button>`;
+ renderHome();
+}
+
+function renderShop(){
+ const box=$("shopList"); box.innerHTML="";
+ SHOP.forEach(item=>{
+   const row=document.createElement("div"); row.className="wordrow"; row.style.marginBottom="8px";
+   row.innerHTML=`<div><b>${item.name}</b><small>${item.desc}</small></div>
+   <button class="btn small" onclick="buy('${item.id}',${item.price})">${item.price} 🪙 · есть ${S.inventory[item.id]}</button>`;
+   box.appendChild(row);
+ });
+}
+
+function buy(id,price){
+ if(S.coins<price){alert("Не хватает койнов");return}
+ S.coins-=price; S.inventory[id]++; save(); init(); renderShop();
+}
+
+function setTheme(t){S.theme=t;save();document.body.classList.toggle("light",t==="light");
+ document.querySelectorAll(".settings .chip")[0].classList.toggle("active",t==="dark");
+ document.querySelectorAll(".settings .chip")[1].classList.toggle("active",t==="light");}
+
+function setFont(size){S.font=size;save();document.body.style.fontSize=size+"px";
+ document.querySelectorAll(".settings .chip")[2].classList.remove("active");
+ document.querySelectorAll(".settings .chip")[3].classList.remove("active");
+ document.querySelectorAll(".settings .chip")[4].classList.remove("active");
+ const i=size===14?2:size===16?3:4; document.querySelectorAll(".settings .chip")[i].classList.add("active");}
+
+function resetProgress(){
+ if(confirm("Точно сбросить весь прогресс?")){
+   localStorage.removeItem("myengly"); location.reload();
+ }
+}
+
+init();
+</script>
+</body>
+</html>
